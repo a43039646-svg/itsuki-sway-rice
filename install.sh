@@ -67,18 +67,22 @@ for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dun
 done
 command -v python3 >/dev/null || { echo "Python 3 is required." >&2; exit 1; }
 
-# Download and verify the selected wallpaper before changing any configuration.
+# Use a locally imported asset when present; otherwise download it automatically.
 TEMP_WALLPAPER="$(mktemp)"
-WALLPAPER_URL="$WALLPAPER_REPOSITORY/$WALLPAPER_FILE"
-if command -v curl >/dev/null 2>&1; then
-  curl -fL --retry 2 "$WALLPAPER_URL" -o "$TEMP_WALLPAPER"
-elif command -v wget >/dev/null 2>&1; then
-  wget -O "$TEMP_WALLPAPER" "$WALLPAPER_URL"
+if [[ -f "$ROOT/wallpaper/$WALLPAPER_FILE" ]]; then
+  cp "$ROOT/wallpaper/$WALLPAPER_FILE" "$TEMP_WALLPAPER"
 else
-  echo "Install curl or wget to download the wallpaper. No configuration was changed." >&2
-  exit 1
+  WALLPAPER_URL="$WALLPAPER_REPOSITORY/$WALLPAPER_FILE"
+  if command -v curl >/dev/null 2>&1; then
+    curl -fL --retry 2 "$WALLPAPER_URL" -o "$TEMP_WALLPAPER"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -O "$TEMP_WALLPAPER" "$WALLPAPER_URL"
+  else
+    echo "Install curl or wget to download the wallpaper. No configuration was changed." >&2
+    exit 1
+  fi
 fi
-[[ -s "$TEMP_WALLPAPER" ]] || { echo "Wallpaper download was empty; no configuration was changed." >&2; exit 1; }
+[[ -s "$TEMP_WALLPAPER" ]] || { echo "Wallpaper file is empty; no configuration was changed." >&2; exit 1; }
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$CONFIG_HOME/itsuki-sway-backup/$PROFILE/$STAMP"

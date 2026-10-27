@@ -22,6 +22,8 @@ PY
 done
 bash -n "$ROOT/install.sh"
 bash -n "$ROOT/scripts/itsuki-power-menu"
+bash -n "$ROOT/scripts/import-wallpapers.sh"
+for wrapper in "$ROOT"/variants/*/install.sh; do bash -n "$wrapper"; done
 python3 - "$ROOT/scripts/itsuki-slider.py" "$ROOT/scripts/itsuki-wifi-menu.py" <<'PY'
 import sys
 from pathlib import Path

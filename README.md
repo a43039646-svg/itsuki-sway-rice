@@ -36,7 +36,7 @@ Choose a theme and wallpaper style when prompted. The installer downloads the se
 - `Super + Enter` — Kitty terminal.
 - `Super + E` — power menu.
 
-Wallpaper files are currently downloaded from the public wallpaper folder of [Itsuki Niri Rice](https://github.com/a43039646-svg/itsuki-niri-rice) during installation, so users do not need to download them manually. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
+Wallpaper files download automatically from the public wallpaper folder of [Itsuki Niri Rice](https://github.com/a43039646-svg/itsuki-niri-rice) during installation. To copy the images into this repository instead, run `bash scripts/import-wallpapers.sh`, then commit and push the downloaded files. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
 
 ## Validate
 
