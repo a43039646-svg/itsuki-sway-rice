@@ -1,0 +1,22 @@
+# Itsuki Arch Niri Rice — Fetch config
+os
+kernel
+shell
+wm
+cpu
+gpu
+memory
+swap
+colors
+
+label_color=cyan
+separator=─
+box=0
+
+# Keep distro logo colors (do not set logo_outer/logo_inner).
+light=top-left
+spin=xy
+speed=1.0
+size=1.0
+depth=1.0
+height=24

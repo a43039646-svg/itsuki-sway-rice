@@ -1,0 +1,71 @@
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(6, 12, 27, 0.86);
+    color: #f5edf6;
+    border-bottom: 1px solid rgba(82, 170, 255, 0.32);
+}
+
+#custom-distro {
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", "Symbols Nerd Font", "Symbols Nerd Font Mono", "ForkAwesome", "FontAwesome", "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif;
+    font-size: 19px;
+    color: #5caeff;
+    padding: 0 12px;
+    margin: 5px 3px 5px 8px;
+    background: rgba(82, 170, 255, 0.13);
+    border: 1px solid rgba(82, 170, 255, 0.32);
+    border-radius: 9px;
+}
+
+#custom-distro:hover { color: #ffffff; background: rgba(82, 170, 255, 0.28); }
+
+#workspaces { margin-left: 8px; }
+#workspaces button {
+    padding: 0 9px;
+    margin: 5px 2px;
+    color: #aaa8bd;
+    background: rgba(255, 255, 255, 0.035);
+    border-radius: 8px;
+    transition: background 120ms ease, color 120ms ease;
+}
+#workspaces button:hover { background: rgba(82, 170, 255, 0.12); color: #ffffff; }
+#workspaces button.focused, #workspaces button.active {
+    color: #a5d8ff;
+    background: rgba(82, 170, 255, 0.19);
+    box-shadow: inset 0 -2px #5caeff;
+}
+#workspaces button.urgent { color: #ffffff; background: rgba(255, 35, 80, 0.35); }
+
+#clock, #pulseaudio, #network, #battery, #backlight, #tray {
+    padding: 0 10px;
+    margin: 5px 3px;
+    background: rgba(11, 22, 42, 0.90);
+    border: 1px solid rgba(82, 170, 255, 0.22);
+    border-radius: 9px;
+}
+#clock { color: #a5d8ff; font-weight: bold; }
+#pulseaudio { color: #b7dcff; }
+#pulseaudio.muted { color: #9b91a7; }
+#network { color: #bdd4ff; }
+#network.disconnected { color: #5caeff; }
+#backlight { color: #a5d8ff; }
+#battery { color: #f5edf6; }
+#battery.warning { color: #ffd27f; }
+#battery.critical:not(.charging) { color: #ff5478; }
+#tray { padding: 0 8px; margin-right: 8px; }
+#tray > .passive { opacity: 0.72; }
+#tray > .active { opacity: 1; }
+#tray > .needs-attention { background: rgba(82, 170, 255, 0.20); border-radius: 6px; }
+
+tooltip {
+    background: rgba(7, 15, 31, 0.97);
+    color: #f5edf6;
+    border: 1px solid #376a9d;
+    border-radius: 8px;
+}
