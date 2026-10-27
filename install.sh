@@ -123,7 +123,7 @@ from pathlib import Path
 path=Path(sys.argv[1]); icon=sys.argv[2]; profile=sys.argv[3]
 cfg=json.loads(path.read_text())
 left=cfg.setdefault("modules-left",[])
-left=[m for m in left if m not in ("custom/debian","custom/distro","niri/workspaces")]
+left=[m for m in left if m not in ("custom/debian","custom/distro","niri/workspaces","sway/workspaces")]
 cfg.pop("custom/debian",None)
 if icon:
     left.insert(0,"custom/distro")
