@@ -15,7 +15,7 @@ mods=sum((cfg.get(k,[]) for k in ("modules-left","modules-center","modules-right
 if len(mods)!=len(set(mods)): raise SystemExit(f"{profile}: duplicate Waybar module")
 if "sway/workspaces" not in mods: raise SystemExit(f"{profile}: missing sway/workspaces")
 if cfg.get("modules-right",[]).count("tray")!=1: raise SystemExit(f"{profile}: tray must appear once")
-if len(re.findall(r"(?m)^color(?:[0-9]|1[0-5])\\s+#?[0-9a-fA-F]{6}\\s*$",Path(kitty).read_text()))!=16:
+if len(re.findall(r"(?m)^color(?:[0-9]|1[0-5])\s+#?[0-9a-fA-F]{6}\s*$",Path(kitty).read_text()))!=16:
     raise SystemExit(f"{profile}: expected 16 Kitty ANSI colors")
 PY
   echo "[$profile] OK"
