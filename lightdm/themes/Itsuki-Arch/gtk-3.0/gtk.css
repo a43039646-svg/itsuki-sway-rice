@@ -1,0 +1,141 @@
+/* Dark blue GTK theme for the Itsuki LightDM greeter. */
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+
+@define-color theme_bg_color #081226;
+@define-color theme_fg_color #edf5ff;
+@define-color theme_base_color #0c1529;
+@define-color theme_text_color #edf5ff;
+@define-color theme_selected_bg_color #183254;
+@define-color theme_selected_fg_color #ffffff;
+@define-color theme_unfocused_bg_color #081226;
+@define-color theme_unfocused_fg_color #edf5ff;
+@define-color theme_unfocused_base_color #0c1529;
+@define-color theme_unfocused_text_color #edf5ff;
+
+entry,
+spinbutton,
+combobox > box > button,
+combobox entry {
+    color: @theme_text_color;
+    background-color: #0c1529;
+    background-image: none;
+    border: 1px solid #315b83;
+    border-radius: 7px;
+    box-shadow: none;
+    padding: 7px 10px;
+    caret-color: #5caeff;
+}
+
+entry:focus,
+spinbutton:focus,
+combobox entry:focus {
+    border-color: #5caeff;
+    box-shadow: 0 0 0 1px #5caeff;
+}
+
+entry selection,
+textview text selection {
+    background-color: #183254;
+    color: #ffffff;
+}
+
+button {
+    color: #edf5ff;
+    background-color: #15233b;
+    background-image: none;
+    border: 1px solid #315b83;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+button:hover,
+button:focus {
+    background-color: #1b3453;
+    border-color: #5caeff;
+}
+
+button:active,
+button:checked {
+    color: #ffffff;
+    background-color: #183254;
+    border-color: #5caeff;
+}
+
+button.suggested-action {
+    color: #081226;
+    background-color: #5caeff;
+    border-color: #5caeff;
+}
+
+button.suggested-action:hover,
+button.suggested-action:focus {
+    color: #081226;
+    background-color: #a5d8ff;
+    border-color: #a5d8ff;
+}
+
+/* LightDM-specific selectors ensure the login fields use the chosen accent. */
+.lightdm-gtk-greeter {
+    color: #edf5ff;
+}
+
+#panel_window {
+    color: #edf5ff;
+    background-color: rgba(8, 10, 24, 0.86);
+}
+
+#login_window,
+#shutdown_dialog,
+#restart_dialog {
+    color: #edf5ff;
+    background-color: #0c1529;
+    background-image: none;
+    border: 1px solid #315b83;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.34);
+}
+
+#login_window .entry {
+    color: #edf5ff;
+    caret-color: #5caeff;
+    background-color: #081226;
+    background-image: none;
+    border: 1px solid #315b83;
+    border-radius: 7px;
+    box-shadow: none;
+    padding: 7px 10px;
+}
+
+#login_window .entry:focus,
+#login_window .entry:hover {
+    color: #edf5ff;
+    background-color: #081226;
+    background-image: none;
+    border-color: #5caeff;
+    box-shadow: 0 0 0 1px #5caeff;
+}
+
+#login_window .button,
+#shutdown_dialog .button,
+#restart_dialog .button {
+    color: #edf5ff;
+    background-color: #15233b;
+    background-image: none;
+    border: 1px solid #315b83;
+    border-radius: 8px;
+}
+
+#login_window .button:hover,
+#shutdown_dialog .button:hover,
+#restart_dialog .button:hover,
+#login_window .button:focus,
+#shutdown_dialog .button:focus,
+#restart_dialog .button:focus {
+    color: #edf5ff;
+    background-color: #1b3453;
+    border-color: #5caeff;
+}
+
+#login_window #user_combobox {
+    color: #edf5ff;
+}
