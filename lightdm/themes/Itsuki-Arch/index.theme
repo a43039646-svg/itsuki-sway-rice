@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Itsuki Arch
+Comment=Dark blue GTK theme for the Itsuki LightDM greeter.
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Itsuki-Arch
+MetacityTheme=Adwaita
+IconTheme=Adwaita
