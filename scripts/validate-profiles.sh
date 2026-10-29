@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT="$(cd -- "$(dirname -- "$0")/.." && pwd)"
 for profile in neutral debian arch gentoo; do
   case "$profile" in arch|gentoo) source="$ROOT/configs/$profile" ;; *) source="$ROOT/configs" ;; esac
   for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dunst/dunstrc fetch/config xdg-desktop-portal/sway-portals.conf; do
@@ -25,11 +25,28 @@ if len(re.findall(r"(?m)^color(?:[0-9]|1[0-5])\s+#?[0-9a-fA-F]{6}\s*$",Path(kitt
 PY
   echo "[$profile] OK"
 done
+
+for rel in \
+  configs/lightdm/lightdm-gtk-greeter.conf \
+  configs/lightdm/lightdm-gtk-greeter-arch.conf \
+  configs/lightdm/lightdm-gtk-greeter-gentoo.conf \
+  configs/lightdm/lightdm-gtk-greeter-neutral.conf \
+  lightdm/themes/Itsuki-Rose/gtk-3.0/gtk.css \
+  lightdm/themes/Itsuki-Rose/index.theme \
+  lightdm/themes/Itsuki-Arch/gtk-3.0/gtk.css \
+  lightdm/themes/Itsuki-Arch/index.theme \
+  lightdm/themes/Itsuki-Gentoo/gtk-3.0/gtk.css \
+  lightdm/themes/Itsuki-Gentoo/index.theme; do
+  [[ -f "$ROOT/$rel" ]] || { echo "Missing LightDM file: $rel" >&2; exit 1; }
+done
+
 bash -n "$ROOT/install.sh"
+bash -n "$ROOT/install-lightdm.sh"
 bash -n "$ROOT/scripts/itsuki-power-menu"
 bash -n "$ROOT/scripts/itsuki-start-rice"
 bash -n "$ROOT/scripts/itsuki-reload-rice"
 grep -q 'ITSUKI_WALLPAPER' "$ROOT/install.sh"
+grep -q 'remove_swaybar_blocks' "$ROOT/install.sh"
 grep -q 'itsuki-wallpaper.path' "$ROOT/scripts/itsuki-start-rice"
 bash -n "$ROOT/scripts/import-wallpapers.sh"
 for wrapper in "$ROOT"/variants/*/install.sh; do bash -n "$wrapper"; done
