@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Itsuki Rose
+Comment=Dark rose GTK theme for the Itsuki LightDM greeter.
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Itsuki-Rose
+MetacityTheme=Adwaita
+IconTheme=Adwaita
