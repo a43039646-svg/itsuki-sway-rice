@@ -1,6 +1,6 @@
 # Sway integration
 
-The installer backs up the existing ~/.config/sway/config, removes top-level bar { ... } blocks and adds a managed include for ~/.config/sway/itsuki.conf. This prevents the built-in Swaybar from running next to Waybar, which is the only panel used by this rice.
+The installer backs up the existing ~/.config/sway/config, removes top-level bar { ... } blocks and explicit swaybar startup commands, then adds a managed include for ~/.config/sway/itsuki.conf. The startup helper also stops any stray Swaybar process in case an included config starts one. Waybar is the only panel used by this rice.
 
 The generated drop-in includes:
 

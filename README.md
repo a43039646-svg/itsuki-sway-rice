@@ -10,7 +10,7 @@ Install Sway first, then run:
     cd itsuki-sway-rice
     bash install.sh
 
-The installer first asks for a profile (Neutral, Arch Linux, Debian or Gentoo), then asks whether the wallpaper should be **with Itsuki**, **without Itsuki**, or left to your existing Sway configuration. Existing Sway settings are backed up under **~/.config/itsuki-sway-backup/**. The installer removes built-in **bar { ... }** blocks from the active Sway config so that Swaybar does not run alongside Waybar. If you choose an Itsuki/clean wallpaper, a conflicting direct **swaybg** startup line is removed from the backed-up config; if you keep your own wallpaper, existing **swaybg** configuration is preserved.
+The installer first asks which distro profile to use (Neutral, Arch Linux, Debian or Gentoo), then asks whether to use a wallpaper **with Itsuki**, **without Itsuki**, or keep your existing Sway wallpaper setup. Existing Sway settings are backed up under **~/.config/itsuki-sway-backup/**. The installer removes built-in **bar { ... }** blocks and explicit Swaybar startup commands from the active Sway config. The startup helper also stops Swaybar as a fallback if a separate included config starts it, so Waybar remains the only panel. If you choose an Itsuki/clean wallpaper, a conflicting direct **swaybg** startup line is removed from the backed-up config; if you keep your own wallpaper, existing **swaybg** configuration is preserved.
 
 On Debian, common packages are:
 

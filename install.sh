@@ -22,7 +22,11 @@ fi
 CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 PROFILE="${ITSUKI_DISTRO:-}"
 if [[ -z "$PROFILE" ]]; then
-  printf '\nItsuki Sway Rice — choose a theme\n  1) Neutral (rose, no distro logo)\n  2) Arch Linux (blue)\n  3) Debian (rose)\n  4) Gentoo (violet)\n\n'
+  printf '\nItsuki Sway Rice — choose your distro profile\n'
+  printf '  1) Neutral (rose theme, no distro logo)\n'
+  printf '  2) Arch Linux (blue theme + Arch logo)\n'
+  printf '  3) Debian (rose theme + Debian logo)\n'
+  printf '  4) Gentoo (violet theme + Gentoo logo)\n\n'
   [[ -r /dev/tty && -w /dev/tty ]] || { echo "No interactive terminal; set ITSUKI_DISTRO=neutral|arch|debian|gentoo." >&2; exit 2; }
   while true; do
     IFS= read -r -p "Choose [1-4]: " choice </dev/tty || { echo "Installation cancelled." >&2; exit 2; }
@@ -123,7 +127,10 @@ elif [[ -z "$WALLPAPER_STYLE" && -n "${ITSUKI_DISTRO:-}" ]]; then
   # Existing variant wrappers continue to default to the Itsuki wallpaper.
   WALLPAPER_STYLE="character"
 elif [[ -z "$WALLPAPER_STYLE" ]]; then
-  printf '\nWallpaper style\n  1) With Itsuki\n  2) Without Itsuki (clean background)\n  0) Keep my current wallpaper\n\n'
+  printf '\nWallpaper choice\n'
+  printf '  1) With Itsuki\n'
+  printf '  2) Without Itsuki (clean background)\n'
+  printf '  0) Keep my current wallpaper and existing swaybg setup\n\n'
   [[ -r /dev/tty && -w /dev/tty ]] || {
     echo "No interactive terminal; set ITSUKI_WALLPAPER_STYLE=character|clean|none." >&2
     exit 2
@@ -416,7 +423,7 @@ echo "Log out and choose Sway at the login screen, or reboot if Sway is not list
 if [[ -d /etc/lightdm ]]; then
   if [[ -r /dev/tty && -w /dev/tty ]]; then
     printf '\nLightDM was detected.\n'
-    read -r -p "Also install this profile's wallpaper/theme on the LightDM login screen? [y/N] " configure_lightdm </dev/tty || configure_lightdm=""
+    read -r -p "Also configure the LightDM login screen with an Itsuki theme? [y/N] " configure_lightdm </dev/tty || configure_lightdm=""
     case "$configure_lightdm" in
       y|Y|yes|YES)
         if [[ ! -f "$ROOT/install-lightdm.sh" ]]; then
@@ -427,7 +434,7 @@ if [[ -d /etc/lightdm ]]; then
           ITSUKI_LIGHTDM_PROFILE="$PROFILE" bash "$ROOT/install-lightdm.sh"
         fi
         ;;
-      *) echo "Skipping LightDM. You can run 'bash install-lightdm.sh' later." ;;
+      *) echo "Skipping LightDM. You can run 'bash install-lightdm.sh' later from this repository." ;;
     esac
   else
     echo "No interactive terminal; skipping optional LightDM setup."

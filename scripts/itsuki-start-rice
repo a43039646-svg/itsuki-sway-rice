@@ -20,6 +20,9 @@ restart_service() {
   "$@" >>"$LOG_FILE" 2>&1 &
 }
 
+# Waybar is the only panel in this rice. Stop Swaybar too if an included
+# Sway config starts it outside the main config file cleaned by install.sh.
+pkill -x swaybar >/dev/null 2>&1 || true
 restart_service waybar waybar || true
 restart_service dunst dunst || true
 

@@ -96,8 +96,8 @@ case "$PROFILE" in
       WALLPAPER_SRC="$ROOT/wallpaper/itsuki_debian_wallpaper_v2_1600x900.png"
       WALLPAPER_DEST="/usr/share/backgrounds/itsuki-lightdm-debian-character.png"
     elif [[ "$WALLPAPER_STYLE" == "clean" ]]; then
-      WALLPAPER_SRC="$ROOT/wallpaper/debian-rice.jpg"
-      WALLPAPER_DEST="/usr/share/backgrounds/itsuki-lightdm-debian.jpg"
+      WALLPAPER_SRC="$ROOT/wallpaper/neutral.png"
+      WALLPAPER_DEST="/usr/share/backgrounds/itsuki-lightdm-debian-clean.png"
     else
       echo "Unknown wallpaper style '$WALLPAPER_STYLE' (use character or clean)." >&2
       exit 2
@@ -171,7 +171,7 @@ fi
 if [[ ! -f "$WALLPAPER_SRC" ]]; then
   WALLPAPER_FILE="$(basename "$WALLPAPER_SRC")"
   case "$WALLPAPER_FILE" in
-    itsuki-neutral.png|itsuki-neutral2.png|itsuki-arch.png|itsuki-gentoo.png|debian-rice.jpg) ;;
+    itsuki-neutral.png|itsuki-neutral2.png|itsuki-arch.png|itsuki-gentoo.png) ;;
     *)
       echo "Wallpaper not found: $WALLPAPER_SRC" >&2
       echo "No LightDM settings have been changed." >&2
