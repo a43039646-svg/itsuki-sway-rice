@@ -3,12 +3,9 @@ set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_URL="https://github.com/a43039646-svg/itsuki-sway-rice.git"
-WALLPAPER_REPOSITORY="https://raw.githubusercontent.com/a43039646-svg/itsuki-niri-rice/main/wallpaper"
 TEMP_SOURCE_DIR=""
-TEMP_WALLPAPER=""
 cleanup() {
   if [[ -n "$TEMP_SOURCE_DIR" && -d "$TEMP_SOURCE_DIR" ]]; then rm -rf -- "$TEMP_SOURCE_DIR"; fi
-  if [[ -n "$TEMP_WALLPAPER" && -f "$TEMP_WALLPAPER" ]]; then rm -f -- "$TEMP_WALLPAPER"; fi
 }
 trap cleanup EXIT
 
@@ -39,26 +36,11 @@ if [[ -z "$PROFILE" ]]; then
   done
 fi
 
-WALLPAPER_STYLE="${ITSUKI_WALLPAPER_STYLE:-}"
-if [[ -z "$WALLPAPER_STYLE" ]]; then
-  printf '\nWallpaper\n  1) With Itsuki\n  2) Clean wallpaper (where available)\n\n'
-  [[ -r /dev/tty && -w /dev/tty ]] || { echo "No interactive terminal; set ITSUKI_WALLPAPER_STYLE=character|clean." >&2; exit 2; }
-  while true; do
-    IFS= read -r -p "Choose [1-2]: " choice </dev/tty || { echo "Installation cancelled." >&2; exit 2; }
-    case "$choice" in
-      1) WALLPAPER_STYLE=character; break ;;
-      2) WALLPAPER_STYLE=clean; break ;;
-      *) echo "Choose 1 or 2." ;;
-    esac
-  done
-fi
-case "$WALLPAPER_STYLE" in character|clean) ;; *) echo "Unknown wallpaper style: $WALLPAPER_STYLE." >&2; exit 2 ;; esac
-
 case "$PROFILE" in
-  neutral) CONFIG_SOURCE="$ROOT/configs"; DISTRO_ICON=""; WALLPAPER_FILE="$([[ "$WALLPAPER_STYLE" == "clean" ]] && echo itsuki-neutral.png || echo itsuki-neutral2.png)" ;;
-  debian) CONFIG_SOURCE="$ROOT/configs"; DISTRO_ICON=""; WALLPAPER_FILE="$([[ "$WALLPAPER_STYLE" == "clean" ]] && echo itsuki-neutral.png || echo itsuki_debian_wallpaper_v2_1600x900.png)" ;;
-  arch) CONFIG_SOURCE="$ROOT/configs/arch"; DISTRO_ICON=""; WALLPAPER_FILE="$([[ "$WALLPAPER_STYLE" == "clean" ]] && echo itsuki-arch.png || echo itsuki-arch2.png)" ;;
-  gentoo) CONFIG_SOURCE="$ROOT/configs/gentoo"; DISTRO_ICON=""; WALLPAPER_FILE="$([[ "$WALLPAPER_STYLE" == "clean" ]] && echo itsuki-gentoo.png || echo itsuki-gentoo2.png)" ;;
+  neutral) CONFIG_SOURCE="$ROOT/configs"; DISTRO_ICON="" ;;
+  debian) CONFIG_SOURCE="$ROOT/configs"; DISTRO_ICON="" ;;
+  arch) CONFIG_SOURCE="$ROOT/configs/arch"; DISTRO_ICON="" ;;
+  gentoo) CONFIG_SOURCE="$ROOT/configs/gentoo"; DISTRO_ICON="" ;;
   *) echo "Unknown profile: $PROFILE (use neutral, debian, arch or gentoo)." >&2; exit 2 ;;
 esac
 
@@ -76,29 +58,12 @@ for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dun
 done
 command -v python3 >/dev/null || { echo "Python 3 is required." >&2; exit 1; }
 
-# Use a locally imported asset when present; otherwise download it automatically.
-TEMP_WALLPAPER="$(mktemp)"
-if [[ -f "$ROOT/wallpaper/$WALLPAPER_FILE" ]]; then
-  cp "$ROOT/wallpaper/$WALLPAPER_FILE" "$TEMP_WALLPAPER"
-else
-  WALLPAPER_URL="$WALLPAPER_REPOSITORY/$WALLPAPER_FILE"
-  if command -v curl >/dev/null 2>&1; then
-    curl -fL --retry 2 "$WALLPAPER_URL" -o "$TEMP_WALLPAPER"
-  elif command -v wget >/dev/null 2>&1; then
-    wget -O "$TEMP_WALLPAPER" "$WALLPAPER_URL"
-  else
-    echo "Install curl or wget to download the wallpaper. No configuration was changed." >&2
-    exit 1
-  fi
-fi
-[[ -s "$TEMP_WALLPAPER" ]] || { echo "Wallpaper file is empty; no configuration was changed." >&2; exit 1; }
-
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$CONFIG_HOME/itsuki-sway-backup/$PROFILE/$STAMP"
 SWAY_DIR="$CONFIG_HOME/sway"
 SWAY_CONFIG="$SWAY_DIR/config"
 SWAY_DROPIN="$SWAY_DIR/itsuki.conf"
-mkdir -p "$BACKUP" "$HOME/.local/bin" "$HOME/Pictures/Wallpapers" "$CONFIG_HOME/waybar" "$CONFIG_HOME/kitty" "$CONFIG_HOME/fuzzel" "$CONFIG_HOME/dunst" "$CONFIG_HOME/fetch" "$CONFIG_HOME/xdg-desktop-portal" "$SWAY_DIR"
+mkdir -p "$BACKUP" "$HOME/.local/bin" "$CONFIG_HOME/waybar" "$CONFIG_HOME/kitty" "$CONFIG_HOME/fuzzel" "$CONFIG_HOME/dunst" "$CONFIG_HOME/fetch" "$CONFIG_HOME/xdg-desktop-portal" "$SWAY_DIR"
 
 backup() {
   local path="$1" relative="$2"
@@ -114,9 +79,6 @@ for rel in waybar/config.json waybar/config.jsonc; do backup "$CONFIG_HOME/$rel"
 for rel in itsuki-power-menu itsuki-wifi-menu.py itsuki-slider.py itsuki-start-rice itsuki-reload-rice; do
   backup "$HOME/.local/bin/$rel" "local-bin/$rel"
 done
-for file in "$HOME/Pictures/Wallpapers/itsuki.png" "$HOME/Pictures/Wallpapers/itsuki.jpg"; do
-  [[ ! -f "$file" ]] || backup "$file" "wallpaper/$(basename "$file")"
-done
 SHELL_NAME="$(basename "${SHELL:-bash}")"
 case "$SHELL_NAME" in bash) SHELL_RC="$HOME/.bashrc" ;; zsh) SHELL_RC="$HOME/.zshrc" ;; *) SHELL_RC="" ;; esac
 if [[ -n "$SHELL_RC" ]]; then backup "$SHELL_RC" "$(basename "$SHELL_RC")"; fi
@@ -126,7 +88,6 @@ for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dun
   cp "$CONFIG_SOURCE/$rel" "$CONFIG_HOME/$rel"
 done
 install -m 0644 "$CONFIG_SOURCE/xdg-desktop-portal/sway-portals.conf" "$CONFIG_HOME/xdg-desktop-portal/sway-portals.conf"
-install -m 0644 "$TEMP_WALLPAPER" "$HOME/Pictures/Wallpapers/itsuki.png"
 install -m 0755 "$ROOT/scripts/itsuki-power-menu" "$HOME/.local/bin/itsuki-power-menu"
 install -m 0755 "$ROOT/scripts/itsuki-wifi-menu.py" "$HOME/.local/bin/itsuki-wifi-menu.py"
 install -m 0755 "$ROOT/scripts/itsuki-start-rice" "$HOME/.local/bin/itsuki-start-rice"
@@ -184,7 +145,7 @@ bindsym Mod4+Return exec kitty
 bindsym Mod4+e exec "$HOME/.local/bin/itsuki-power-menu"
 bindsym Mod4+Shift+b exec --no-startup-id "$HOME/.local/bin/itsuki-reload-rice"
 
-# Start the panel, notifications and wallpaper once per Sway session.
+# Start the panel and notifications once per Sway session.
 exec --no-startup-id "$HOME/.local/bin/itsuki-start-rice"
 EOF
 
@@ -203,7 +164,7 @@ for line in text.splitlines():
             command=shlex.split(match.group(1), comments=False)
         except ValueError:
             command=[]
-        if command and Path(command[0]).name in {"waybar", "dunst", "swaybg"}:
+        if command and Path(command[0]).name in {"waybar", "dunst"}:
             continue
     kept.append(line)
 text="\n".join(kept).rstrip()+"\n"
@@ -241,6 +202,5 @@ bash -n "$HOME/.local/bin/itsuki-start-rice"
 bash -n "$HOME/.local/bin/itsuki-reload-rice"
 if command -v sway >/dev/null 2>&1; then sway -C -c "$SWAY_CONFIG"; fi
 echo "Installed Itsuki Sway Rice ($PROFILE profile)."
-echo "Wallpaper: $HOME/Pictures/Wallpapers/itsuki.png"
 echo "Backups: $BACKUP"
 echo "Log out and choose Sway at the login screen, or reboot if Sway is not listed yet."

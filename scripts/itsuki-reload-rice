@@ -38,5 +38,5 @@ else
 fi
 
 if command -v notify-send >/dev/null 2>&1; then
-  notify-send "Itsuki Sway Rice" "Config reloaded; Waybar, Dunst and wallpaper restarted." >>"$LOG_FILE" 2>&1 || true
+  notify-send "Itsuki Sway Rice" "Config reloaded; Waybar and Dunst restarted." >>"$LOG_FILE" 2>&1 || true
 fi

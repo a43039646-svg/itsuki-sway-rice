@@ -2,7 +2,6 @@
 set -uo pipefail
 
 CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-WALLPAPER="$HOME/Pictures/Wallpapers/itsuki.png"
 LOG_DIR="$CACHE_HOME/itsuki-sway-rice"
 LOG_FILE="$LOG_DIR/startup.log"
 
@@ -23,11 +22,3 @@ restart_service() {
 
 restart_service waybar waybar || true
 restart_service dunst dunst || true
-
-pkill -x swaybg >/dev/null 2>&1 || true
-sleep 0.2
-if command -v swaybg >/dev/null 2>&1 && [[ -r "$WALLPAPER" ]]; then
-  swaybg -i "$WALLPAPER" -m fill >>"$LOG_FILE" 2>&1 &
-else
-  printf '[%s] swaybg or wallpaper is unavailable: %s\n' "$(date -Is)" "$WALLPAPER" >>"$LOG_FILE"
-fi

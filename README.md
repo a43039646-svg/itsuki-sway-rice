@@ -1,6 +1,6 @@
 # Itsuki Sway Rice
 
-A Sway port inspired by the Itsuki Niri Rice, with matching profile colors, Waybar, Kitty, Fuzzel, Dunst, wallpaper, power menu and helper scripts. Sway uses its own native config drop-in; no Niri-specific commands are installed.
+A Sway port inspired by the Itsuki Niri Rice, with matching profile colors, Waybar, Kitty, Fuzzel, Dunst, power menu and helper scripts. Your wallpaper is left entirely to you.
 
 ## Themes
 
@@ -28,7 +28,7 @@ cd itsuki-sway-rice
 bash install.sh
 ```
 
-Choose a theme and wallpaper style when prompted. The installer downloads the selected wallpaper automatically, backs up files it changes to `~/.config/itsuki-sway-backup/`, and adds a managed include to the existing Sway config.
+Choose a theme when prompted. The installer does not download, install, or replace wallpapers; it preserves your existing wallpaper commands and adds a managed include to the existing Sway config. Changed files are backed up to `~/.config/itsuki-sway-backup/`.
 
 **After installation, log out and choose Sway at the login screen.** Reboot if Sway is not available in the session selector yet. The installer backs up files it changes under `~/.config/itsuki-sway-backup/<profile>/<timestamp>/`, including existing Sway configuration and conflicting helper scripts.
 
@@ -37,12 +37,12 @@ Choose a theme and wallpaper style when prompted. The installer downloads the se
 - `Super + D` — Fuzzel launcher.
 - `Super + Enter` — Kitty terminal.
 - `Super + E` — power menu.
-- `Super + Shift + B` — validate and reload Sway's config, then restart Waybar, Dunst and the wallpaper helper.
+- `Super + Shift + B` — validate and reload Sway's config, then restart Waybar and Dunst.
 - Scroll over the brightness indicator in Waybar — change screen brightness with `brightnessctl` (on supported hardware).
 
 Sway gets 8-pixel inner gaps, 3-pixel outer gaps and focused window borders matching the selected theme. Unlike Niri, Sway does not provide Niri's built-in background blur, so Kitty transparency may show the wallpaper without blur.
 
-Wallpaper files download automatically from the public wallpaper folder of [Itsuki Niri Rice](https://github.com/a43039646-svg/itsuki-niri-rice) during installation. To copy the images into this repository instead, run `bash scripts/import-wallpapers.sh`, then commit and push the downloaded files. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
+**Wallpaper:** set it yourself in your Sway setup. The installer preserves existing `swaybg` commands and never replaces your image. If you want to browse wallpapers from the Niri Rice project, `bash scripts/import-wallpapers.sh` is an optional, manual asset download and is not part of installation. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
 
 ## Optional: complete the distro-logo icons
 
