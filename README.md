@@ -28,7 +28,7 @@ cd itsuki-sway-rice
 bash install.sh
 ```
 
-Choose a theme when prompted. The installer does not download, install, or replace wallpapers; it preserves your existing wallpaper commands and adds a managed include to the existing Sway config. Changed files are backed up to `~/.config/itsuki-sway-backup/`.
+Choose a theme, then choose one of the images listed from `wallpaper/`. The selected image is copied into `~/.local/share/itsuki-sway-rice/wallpapers/` and enabled through the managed Sway startup helper. Choose `0` to leave wallpaper handling to your own Sway config. Existing `swaybg` commands are preserved; when a rice-managed image is selected, the helper applies that choice after Sway starts. Changed files are backed up to `~/.config/itsuki-sway-backup/`.
 
 **After installation, log out and choose Sway at the login screen.** Reboot if Sway is not available in the session selector yet. The installer backs up files it changes under `~/.config/itsuki-sway-backup/<profile>/<timestamp>/`, including existing Sway configuration and conflicting helper scripts.
 
@@ -42,7 +42,7 @@ Choose a theme when prompted. The installer does not download, install, or repla
 
 Sway gets 8-pixel inner gaps, 3-pixel outer gaps and focused window borders matching the selected theme. Unlike Niri, Sway does not provide Niri's built-in background blur, so Kitty transparency may show the wallpaper without blur.
 
-**Wallpaper:** set it yourself in your Sway setup. The installer preserves existing `swaybg` commands and never replaces your image. If you want to browse wallpapers from the Niri Rice project, `bash scripts/import-wallpapers.sh` is an optional, manual asset download and is not part of installation. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
+**Wallpaper:** the installer lists supported images already present in `wallpaper/` (`.png`, `.jpg`, `.jpeg`, `.webp`, `.bmp`). For non-interactive installs, set `ITSUKI_WALLPAPER=filename.png` to pick one, or `ITSUKI_WALLPAPER=none` to use your own Sway wallpaper config. `bash scripts/import-wallpapers.sh` remains an optional manual download. Fetch startup uses `fetch --box --shading-mode sextants` if the `fetch` command is installed.
 
 ## Optional: complete the distro-logo icons
 
@@ -56,6 +56,10 @@ fc-cache -f ~/.local/share/fonts
 ```
 
 Log out and back in after installing the font so Waybar can reload the font cache.
+
+## Wallpaper duplicate check
+
+To report exact copies and possible visual near-duplicates in `wallpaper/`, run `python scripts/check-wallpaper-duplicates.py` after installing Pillow with `python -m pip install Pillow`. The check reports candidates but never deletes images automatically.
 
 ## Validate
 

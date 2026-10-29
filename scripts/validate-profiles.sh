@@ -29,9 +29,11 @@ bash -n "$ROOT/install.sh"
 bash -n "$ROOT/scripts/itsuki-power-menu"
 bash -n "$ROOT/scripts/itsuki-start-rice"
 bash -n "$ROOT/scripts/itsuki-reload-rice"
+grep -q 'ITSUKI_WALLPAPER' "$ROOT/install.sh"
+grep -q 'itsuki-wallpaper.path' "$ROOT/scripts/itsuki-start-rice"
 bash -n "$ROOT/scripts/import-wallpapers.sh"
 for wrapper in "$ROOT"/variants/*/install.sh; do bash -n "$wrapper"; done
-python3 - "$ROOT/scripts/itsuki-slider.py" "$ROOT/scripts/itsuki-wifi-menu.py" <<'PY'
+python3 - "$ROOT/scripts/itsuki-slider.py" "$ROOT/scripts/itsuki-wifi-menu.py" "$ROOT/scripts/check-wallpaper-duplicates.py" <<'PY'
 import sys
 from pathlib import Path
 for f in sys.argv[1:]: compile(Path(f).read_text(),f,"exec")

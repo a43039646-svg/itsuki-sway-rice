@@ -53,6 +53,64 @@ case "$PROFILE" in
     SWAY_ACCENT="#b58aff"; SWAY_SURFACE="#180f2a"; SWAY_HIGHLIGHT="#d8bcff" ;;
 esac
 
+# Offer every supported image from wallpaper/; choosing "0" leaves the wallpaper
+# to the user's own Sway configuration. ITSUKI_WALLPAPER accepts a filename or "none".
+WALLPAPER_SOURCE=""
+WALLPAPER_SELECTION="${ITSUKI_WALLPAPER:-}"
+WALLPAPER_FILES=()
+if [[ -d "$ROOT/wallpaper" ]]; then
+  shopt -s nullglob nocasematch
+  for file in "$ROOT"/wallpaper/*; do
+    case "$file" in
+      *.png|*.jpg|*.jpeg|*.webp|*.bmp) WALLPAPER_FILES+=("$file") ;;
+    esac
+  done
+  shopt -u nullglob nocasematch
+fi
+
+if [[ -n "$WALLPAPER_SELECTION" ]]; then
+  case "$WALLPAPER_SELECTION" in
+    none|off|own) WALLPAPER_SOURCE="" ;;
+    *)
+      for file in "${WALLPAPER_FILES[@]}"; do
+        if [[ "$(basename "$file")" == "$WALLPAPER_SELECTION" ]]; then
+          WALLPAPER_SOURCE="$file"
+          break
+        fi
+      done
+      if [[ -z "$WALLPAPER_SOURCE" ]]; then
+        echo "Unknown wallpaper: $WALLPAPER_SELECTION" >&2
+        printf 'Available files:\n'
+        for file in "${WALLPAPER_FILES[@]}"; do printf '  %s\n' "$(basename "$file")"; done
+        echo 'Use ITSUKI_WALLPAPER=none to leave wallpaper handling in your Sway config.' >&2
+        exit 2
+      fi
+      ;;
+  esac
+elif ((${#WALLPAPER_FILES[@]} > 0)); then
+  printf '\nWallpaper — choose an image\n'
+  for index in "${!WALLPAPER_FILES[@]}"; do
+    printf '  %2d) %s\n' "$((index + 1))" "$(basename "${WALLPAPER_FILES[$index]}")"
+  done
+  printf '   0) I will manage the wallpaper myself (leave it to my Sway config)\n\n'
+  [[ -r /dev/tty && -w /dev/tty ]] || {
+    echo "No interactive terminal; set ITSUKI_WALLPAPER=<filename> or ITSUKI_WALLPAPER=none." >&2
+    exit 2
+  }
+  while true; do
+    IFS= read -r -p "Choose [0-${#WALLPAPER_FILES[@]}, default 0]: " choice </dev/tty || {
+      echo "Wallpaper selection cancelled." >&2
+      exit 2
+    }
+    choice="${choice:-0}"
+    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 0 && choice <= ${#WALLPAPER_FILES[@]})); then
+      if ((choice > 0)); then WALLPAPER_SOURCE="${WALLPAPER_FILES[$((choice - 1))]}"; fi
+      break
+    fi
+    echo "Choose a number between 0 and ${#WALLPAPER_FILES[@]}."
+  done
+fi
+
 for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dunst/dunstrc fetch/config xdg-desktop-portal/sway-portals.conf; do
   [[ -f "$CONFIG_SOURCE/$rel" ]] || { echo "Required file is missing: $CONFIG_SOURCE/$rel" >&2; exit 1; }
 done
@@ -63,6 +121,11 @@ BACKUP="$CONFIG_HOME/itsuki-sway-backup/$PROFILE/$STAMP"
 SWAY_DIR="$CONFIG_HOME/sway"
 SWAY_CONFIG="$SWAY_DIR/config"
 SWAY_DROPIN="$SWAY_DIR/itsuki.conf"
+WALLPAPER_MARKER="$SWAY_DIR/itsuki-wallpaper.path"
+WALLPAPER_DEST=""
+if [[ -n "$WALLPAPER_SOURCE" ]]; then
+  WALLPAPER_DEST="$HOME/.local/share/itsuki-sway-rice/wallpapers/$(basename "$WALLPAPER_SOURCE")"
+fi
 mkdir -p "$BACKUP" "$HOME/.local/bin" "$CONFIG_HOME/waybar" "$CONFIG_HOME/kitty" "$CONFIG_HOME/fuzzel" "$CONFIG_HOME/dunst" "$CONFIG_HOME/fetch" "$CONFIG_HOME/xdg-desktop-portal" "$SWAY_DIR"
 
 backup() {
@@ -76,6 +139,10 @@ for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dun
   backup "$CONFIG_HOME/$rel" "$rel"
 done
 for rel in waybar/config.json waybar/config.jsonc; do backup "$CONFIG_HOME/$rel" "$rel"; done
+backup "$WALLPAPER_MARKER" "sway/itsuki-wallpaper.path"
+if [[ -n "$WALLPAPER_DEST" ]]; then
+  backup "$WALLPAPER_DEST" "managed-wallpaper/$(basename "$WALLPAPER_DEST")"
+fi
 for rel in itsuki-power-menu itsuki-wifi-menu.py itsuki-slider.py itsuki-start-rice itsuki-reload-rice; do
   backup "$HOME/.local/bin/$rel" "local-bin/$rel"
 done
@@ -88,6 +155,13 @@ for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dun
   cp "$CONFIG_SOURCE/$rel" "$CONFIG_HOME/$rel"
 done
 install -m 0644 "$CONFIG_SOURCE/xdg-desktop-portal/sway-portals.conf" "$CONFIG_HOME/xdg-desktop-portal/sway-portals.conf"
+if [[ -n "$WALLPAPER_SOURCE" ]]; then
+  mkdir -p "$(dirname "$WALLPAPER_DEST")"
+  install -m 0644 "$WALLPAPER_SOURCE" "$WALLPAPER_DEST"
+  printf '%s\n' "$WALLPAPER_DEST" > "$WALLPAPER_MARKER"
+else
+  rm -f "$WALLPAPER_MARKER"
+fi
 install -m 0755 "$ROOT/scripts/itsuki-power-menu" "$HOME/.local/bin/itsuki-power-menu"
 install -m 0755 "$ROOT/scripts/itsuki-wifi-menu.py" "$HOME/.local/bin/itsuki-wifi-menu.py"
 install -m 0755 "$ROOT/scripts/itsuki-start-rice" "$HOME/.local/bin/itsuki-start-rice"
@@ -202,5 +276,10 @@ bash -n "$HOME/.local/bin/itsuki-start-rice"
 bash -n "$HOME/.local/bin/itsuki-reload-rice"
 if command -v sway >/dev/null 2>&1; then sway -C -c "$SWAY_CONFIG"; fi
 echo "Installed Itsuki Sway Rice ($PROFILE profile)."
+if [[ -n "$WALLPAPER_SOURCE" ]]; then
+  echo "Wallpaper: $(basename "$WALLPAPER_SOURCE")"
+else
+  echo "Wallpaper: left to your Sway configuration."
+fi
 echo "Backups: $BACKUP"
 echo "Log out and choose Sway at the login screen, or reboot if Sway is not listed yet."

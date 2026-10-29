@@ -22,3 +22,18 @@ restart_service() {
 
 restart_service waybar waybar || true
 restart_service dunst dunst || true
+
+# Only manage the background when the installer stored an explicit selection.
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+WALLPAPER_MARKER="$CONFIG_HOME/sway/itsuki-wallpaper.path"
+if [[ -r "$WALLPAPER_MARKER" ]]; then
+  WALLPAPER=""
+  IFS= read -r WALLPAPER < "$WALLPAPER_MARKER" || true
+  if [[ -n "$WALLPAPER" && -r "$WALLPAPER" ]] && command -v swaybg >/dev/null 2>&1; then
+    pkill -x swaybg >/dev/null 2>&1 || true
+    sleep 0.2
+    swaybg -i "$WALLPAPER" -m fill >>"$LOG_FILE" 2>&1 &
+  else
+    printf '[%s] Managed wallpaper is missing or swaybg is unavailable: %s\n' "$(date -Is)" "$WALLPAPER" >>"$LOG_FILE"
+  fi
+fi

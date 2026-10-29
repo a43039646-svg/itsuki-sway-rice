@@ -15,5 +15,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Install Pillow for wallpaper comparison
+        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Check wallpaper duplicates
+        run: python scripts/check-wallpaper-duplicates.py
       - name: Validate profiles
         run: bash scripts/validate-profiles.sh

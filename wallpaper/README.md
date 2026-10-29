@@ -1,5 +1,7 @@
 # Wallpapers
 
-The Sway Rice installer does not install, choose, or replace your wallpaper. Set a background yourself in your existing Sway configuration or with your preferred wallpaper tool. Any existing wallpaper commands (including `swaybg`) are preserved by the installer.
+The installer lists supported images in this folder and lets you pick one during installation. The selected file is copied into `~/.local/share/itsuki-sway-rice/wallpapers/` and the Sway startup helper applies it.
 
-To manually import the optional Itsuki wallpapers from [Itsuki Niri Rice](https://github.com/a43039646-svg/itsuki-niri-rice), run `bash scripts/import-wallpapers.sh`. This downloads image files into this repository only; it does not apply them to your desktop.
+Choose `0` in the installer to leave wallpaper management to your own Sway config. Existing `swaybg` commands are preserved. For non-interactive installation, use `ITSUKI_WALLPAPER=filename.png` or `ITSUKI_WALLPAPER=none`.
+
+To check for exact copies and visually similar images, run `python scripts/check-wallpaper-duplicates.py` after installing Pillow. It reports suspected matches without deleting files; review candidates before removing either image.
