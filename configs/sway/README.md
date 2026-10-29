@@ -1,10 +1,14 @@
 # Sway integration
 
-The installer preserves and backs up the existing `~/.config/sway/config`, then adds a managed include for `~/.config/sway/itsuki.conf`. The drop-in is generated for the chosen palette and includes:
+The installer backs up the existing ~/.config/sway/config, removes top-level bar { ... } blocks and adds a managed include for ~/.config/sway/itsuki.conf. This prevents the built-in Swaybar from running next to Waybar, which is the only panel used by this rice.
 
-- 8-pixel inner and 3-pixel outer gaps, pixel borders and rose/blue/violet focus colors.
-- `Super+D` for Fuzzel, `Super+Enter` for Kitty, and `Super+E` for the power menu.
-- `Super+Shift+B` to validate/reload Sway and restart Waybar and Dunst.
-- A single session-start command for the managed helpers, avoiding repeated `exec_always` launches on every config reload. If a wallpaper was selected, the helper reads `~/.config/sway/itsuki-wallpaper.path` and starts `swaybg`; otherwise it leaves the background alone.
+The generated drop-in includes:
 
-The root Sway config is not replaced wholesale. The installer backs it up, removes direct Waybar/Dunst autostart commands that would duplicate the rice while preserving your wallpaper setup (including any existing `swaybg` command), and places the managed include at the end so Itsuki's theme settings take effect. Other config lines are preserved. The backup is stored under `~/.config/itsuki-sway-backup/<profile>/<timestamp>/`.
+- 8-pixel inner and 3-pixel outer gaps, pixel borders, and rose/blue/violet focus colors.
+- Super+D for Fuzzel, Super+Enter for Kitty, and Super+E for the power menu.
+- Super+Shift+B to validate/reload Sway and restart Waybar and Dunst.
+- A single session-start command for managed helpers.
+
+When a wallpaper is selected in the installer, direct swaybg startup commands are removed so the selected background is applied consistently. Choosing to keep the current wallpaper preserves existing swaybg lines and clears the managed wallpaper marker. Existing config files and helper scripts are backed up under ~/.config/itsuki-sway-backup/<profile>/<timestamp>/.
+
+The main installer optionally offers LightDM setup at the end. install-lightdm.sh can also be run independently and requires its own confirmation before changing system files.
