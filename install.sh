@@ -53,11 +53,12 @@ case "$PROFILE" in
     SWAY_ACCENT="#b58aff"; SWAY_SURFACE="#180f2a"; SWAY_HIGHLIGHT="#d8bcff" ;;
 esac
 
-# Offer every supported image from wallpaper/; choosing "0" leaves the wallpaper
-# to the user's own Sway configuration. ITSUKI_WALLPAPER accepts a filename or "none".
-WALLPAPER_SOURCE=""
+WALLPAPER_STYLE="${ITSUKI_WALLPAPER_STYLE:-}"
 WALLPAPER_SELECTION="${ITSUKI_WALLPAPER:-}"
+WALLPAPER_SOURCE=""
+WALLPAPER_FILE=""
 WALLPAPER_FILES=()
+
 if [[ -d "$ROOT/wallpaper" ]]; then
   shopt -s nullglob nocasematch
   for file in "$ROOT"/wallpaper/*; do
@@ -68,12 +69,42 @@ if [[ -d "$ROOT/wallpaper" ]]; then
   shopt -u nullglob nocasematch
 fi
 
+resolve_wallpaper_file() {
+  local filename="$1"
+  if [[ -f "$ROOT/wallpaper/$filename" ]]; then
+    WALLPAPER_SOURCE="$ROOT/wallpaper/$filename"
+    return 0
+  fi
+  # Download only a selected variant that isn't bundled in this repository.
+  case "$filename" in
+    itsuki-neutral2.png|itsuki-arch.png|itsuki-gentoo.png) ;;
+    *)
+      echo "Wallpaper file is missing: $ROOT/wallpaper/$filename" >&2
+      return 1
+      ;;
+  esac
+  command -v curl >/dev/null 2>&1 || {
+    echo "curl is required to download the selected wallpaper: $filename" >&2
+    return 1
+  }
+  [[ -n "$TEMP_SOURCE_DIR" ]] || TEMP_SOURCE_DIR="$(mktemp -d)"
+  mkdir -p "$TEMP_SOURCE_DIR/download-wallpapers"
+  if ! curl -fsSL "https://raw.githubusercontent.com/a43039646-svg/itsuki-niri-rice/main/wallpaper/$filename" \
+      -o "$TEMP_SOURCE_DIR/download-wallpapers/$filename"; then
+    echo "Could not download $filename. No wallpaper has been installed." >&2
+    return 1
+  fi
+  WALLPAPER_SOURCE="$TEMP_SOURCE_DIR/download-wallpapers/$filename"
+}
+
 if [[ -n "$WALLPAPER_SELECTION" ]]; then
   case "$WALLPAPER_SELECTION" in
-    none|off|own) WALLPAPER_SOURCE="" ;;
+    none|off|own)
+      WALLPAPER_STYLE="none"
+      ;;
     *)
       for file in "${WALLPAPER_FILES[@]}"; do
-        if [[ "$(basename "$file")" == "$WALLPAPER_SELECTION" ]]; then
+        if [[ "$(basename "$file")" == "$(basename "$WALLPAPER_SELECTION")" ]]; then
           WALLPAPER_SOURCE="$file"
           break
         fi
@@ -85,30 +116,60 @@ if [[ -n "$WALLPAPER_SELECTION" ]]; then
         echo 'Use ITSUKI_WALLPAPER=none to leave wallpaper handling in your Sway config.' >&2
         exit 2
       fi
+      WALLPAPER_STYLE="custom"
       ;;
   esac
-elif ((${#WALLPAPER_FILES[@]} > 0)); then
-  printf '\nWallpaper — choose an image\n'
-  for index in "${!WALLPAPER_FILES[@]}"; do
-    printf '  %2d) %s\n' "$((index + 1))" "$(basename "${WALLPAPER_FILES[$index]}")"
-  done
-  printf '   0) I will manage the wallpaper myself (leave it to my Sway config)\n\n'
+elif [[ -z "$WALLPAPER_STYLE" && -n "${ITSUKI_DISTRO:-}" ]]; then
+  # Existing variant wrappers continue to default to the Itsuki wallpaper.
+  WALLPAPER_STYLE="character"
+elif [[ -z "$WALLPAPER_STYLE" ]]; then
+  printf '\nWallpaper style\n  1) With Itsuki\n  2) Without Itsuki (clean background)\n  0) Keep my current wallpaper\n\n'
   [[ -r /dev/tty && -w /dev/tty ]] || {
-    echo "No interactive terminal; set ITSUKI_WALLPAPER=<filename> or ITSUKI_WALLPAPER=none." >&2
+    echo "No interactive terminal; set ITSUKI_WALLPAPER_STYLE=character|clean|none." >&2
     exit 2
   }
   while true; do
-    IFS= read -r -p "Choose [0-${#WALLPAPER_FILES[@]}, default 0]: " choice </dev/tty || {
+    IFS= read -r -p "Choose [0-2]: " choice </dev/tty || {
       echo "Wallpaper selection cancelled." >&2
       exit 2
     }
-    choice="${choice:-0}"
-    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 0 && choice <= ${#WALLPAPER_FILES[@]})); then
-      if ((choice > 0)); then WALLPAPER_SOURCE="${WALLPAPER_FILES[$((choice - 1))]}"; fi
-      break
-    fi
-    echo "Choose a number between 0 and ${#WALLPAPER_FILES[@]}."
+    case "$choice" in
+      1) WALLPAPER_STYLE="character"; break ;;
+      2) WALLPAPER_STYLE="clean"; break ;;
+      0) WALLPAPER_STYLE="none"; break ;;
+      *) echo "Choose 0, 1 or 2." ;;
+    esac
   done
+fi
+
+if [[ -z "$WALLPAPER_SELECTION" ]]; then
+  case "$WALLPAPER_STYLE" in
+    character)
+      case "$PROFILE" in
+        neutral) WALLPAPER_FILE="itsuki-neutral2.png" ;;
+        debian) WALLPAPER_FILE="itsuki_debian_wallpaper_v2_1600x900.png" ;;
+        arch) WALLPAPER_FILE="itsuki-arch2.png" ;;
+        gentoo) WALLPAPER_FILE="itsuki-gentoo2.png" ;;
+      esac
+      ;;
+    clean)
+      case "$PROFILE" in
+        neutral|debian) WALLPAPER_FILE="neutral.png" ;;
+        arch) WALLPAPER_FILE="itsuki-arch.png" ;;
+        gentoo) WALLPAPER_FILE="itsuki-gentoo.png" ;;
+      esac
+      ;;
+    none|off|own)
+      WALLPAPER_STYLE="none"
+      ;;
+    *)
+      echo "Unknown ITSUKI_WALLPAPER_STYLE '$WALLPAPER_STYLE' (use character, clean or none)." >&2
+      exit 2
+      ;;
+  esac
+  if [[ -n "$WALLPAPER_FILE" ]]; then
+    resolve_wallpaper_file "$WALLPAPER_FILE" || exit 1
+  fi
 fi
 
 for rel in waybar/config waybar/style.css kitty/kitty.conf fuzzel/fuzzel.ini dunst/dunstrc fetch/config xdg-desktop-portal/sway-portals.conf; do
@@ -223,32 +284,99 @@ bindsym Mod4+Shift+b exec --no-startup-id "$HOME/.local/bin/itsuki-reload-rice"
 exec --no-startup-id "$HOME/.local/bin/itsuki-start-rice"
 EOF
 
-python3 - "$SWAY_CONFIG" "$SWAY_DROPIN" <<'PYSWAY'
+MANAGE_WALLPAPER="preserve"
+[[ -n "$WALLPAPER_SOURCE" ]] && MANAGE_WALLPAPER="managed"
+python3 - "$SWAY_CONFIG" "$SWAY_DROPIN" "$MANAGE_WALLPAPER" <<'PYSWAY'
 from pathlib import Path
 import re, shlex, sys
-config=Path(sys.argv[1]); dropin=Path(sys.argv[2])
-text=config.read_text()
-kept=[]
+
+config = Path(sys.argv[1])
+dropin = Path(sys.argv[2])
+manage_wallpaper = sys.argv[3] == "managed"
+text = config.read_text()
+
+def code_part(line):
+    in_quote = False
+    escaped = False
+    result = []
+    for char in line:
+        if escaped:
+            result.append(char)
+            escaped = False
+            continue
+        if char == "\\" and in_quote:
+            result.append(char)
+            escaped = True
+            continue
+        if char == '"':
+            in_quote = not in_quote
+            result.append(" ")
+            continue
+        if char == "#" and not in_quote:
+            break
+        result.append(char if not in_quote else " ")
+    return "".join(result)
+
+def remove_swaybar_blocks(source):
+    lines = source.splitlines(keepends=True)
+    kept = []
+    global_depth = 0
+    skipping = False
+    block_depth = 0
+    removed = 0
+    for line in lines:
+        code = code_part(line)
+        if not skipping and global_depth == 0 and re.match(r"^[ \t]*bar[ \t]*\{", code):
+            skipping = True
+            block_depth = code.count("{") - code.count("}")
+            removed += 1
+            if block_depth <= 0:
+                skipping = False
+                block_depth = 0
+            continue
+        if skipping:
+            block_depth += code.count("{") - code.count("}")
+            if block_depth <= 0:
+                skipping = False
+                block_depth = 0
+            continue
+        kept.append(line)
+        global_depth += code.count("{") - code.count("}")
+        global_depth = max(global_depth, 0)
+    if skipping:
+        raise SystemExit("Unclosed Sway 'bar {' block found; the Sway config was not rewritten.")
+    return "".join(kept), removed
+
+text, removed_bars = remove_swaybar_blocks(text)
+kept = []
 for line in text.splitlines():
     if line.lstrip().startswith("#"):
-        kept.append(line); continue
-    match=re.match(r"^\s*exec(?:_always)?(?:\s+--no-startup-id)?\s+(.*)$",line)
+        kept.append(line)
+        continue
+    match = re.match(r"^\s*exec(?:_always)?(?:\s+--no-startup-id)?\s+(.*)$", line)
     if match:
         try:
-            command=shlex.split(match.group(1), comments=False)
+            command = shlex.split(match.group(1), comments=False)
         except ValueError:
-            command=[]
-        if command and Path(command[0]).name in {"waybar", "dunst"}:
+            command = []
+        if command and Path(command[0]).name in {"waybar", "dunst", "swaybar"}:
+            continue
+        if manage_wallpaper and command and Path(command[0]).name == "swaybg":
             continue
     kept.append(line)
-text="\n".join(kept).rstrip()+"\n"
-marker="# BEGIN ITSUKI SWAY RICE"
-end="# END ITSUKI SWAY RICE"
-block=f"{marker}\ninclude {dropin}\n{end}"
-pattern=re.compile(r"(?ms)^# BEGIN ITSUKI SWAY RICE\n.*?^# END ITSUKI SWAY RICE[ \t]*(?:\n|$)")
-if pattern.search(text): text=pattern.sub(block+"\n",text,count=1)
-else: text=text.rstrip()+"\n\n"+block+"\n"
+
+text = "\n".join(kept).rstrip() + "\n"
+marker = "# BEGIN ITSUKI SWAY RICE"
+end = "# END ITSUKI SWAY RICE"
+block = f"{marker}\ninclude {dropin}\n{end}"
+pattern = re.compile(r"(?ms)^# BEGIN ITSUKI SWAY RICE\n.*?^# END ITSUKI SWAY RICE[ \t]*(?:\n|$)")
+if pattern.search(text):
+    text = pattern.sub(block + "\n", text, count=1)
+else:
+    text = text.rstrip() + "\n\n" + block + "\n"
+
 config.write_text(text)
+print(f"Removed {removed_bars} built-in Swaybar block(s); Waybar is the only panel.")
 PYSWAY
 
 if [[ -n "$SHELL_RC" ]]; then
@@ -283,3 +411,27 @@ else
 fi
 echo "Backups: $BACKUP"
 echo "Log out and choose Sway at the login screen, or reboot if Sway is not listed yet."
+
+# LightDM stays optional and is configured by a separate installer.
+if [[ -d /etc/lightdm ]]; then
+  if [[ -r /dev/tty && -w /dev/tty ]]; then
+    printf '\nLightDM was detected.\n'
+    read -r -p "Also install this profile's wallpaper/theme on the LightDM login screen? [y/N] " configure_lightdm </dev/tty || configure_lightdm=""
+    case "$configure_lightdm" in
+      y|Y|yes|YES)
+        if [[ ! -f "$ROOT/install-lightdm.sh" ]]; then
+          echo "install-lightdm.sh is missing. Download the full repository and run it separately." >&2
+        elif [[ "$WALLPAPER_STYLE" == "character" || "$WALLPAPER_STYLE" == "clean" ]]; then
+          ITSUKI_LIGHTDM_PROFILE="$PROFILE" ITSUKI_LIGHTDM_WALLPAPER="$WALLPAPER_STYLE" bash "$ROOT/install-lightdm.sh"
+        else
+          ITSUKI_LIGHTDM_PROFILE="$PROFILE" bash "$ROOT/install-lightdm.sh"
+        fi
+        ;;
+      *) echo "Skipping LightDM. You can run 'bash install-lightdm.sh' later." ;;
+    esac
+  else
+    echo "No interactive terminal; skipping optional LightDM setup."
+  fi
+else
+  echo "LightDM was not detected at /etc/lightdm; the separate installer remains available as install-lightdm.sh."
+fi
