@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+SWAY_CONFIG_FILE="${SWAY_CONFIG_FILE:-$CONFIG_HOME/sway/config}"
+LOG_DIR="$CACHE_HOME/itsuki-sway-rice"
+LOG_FILE="$LOG_DIR/reload.log"
+START_HELPER="$HOME/.local/bin/itsuki-start-rice"
+
+mkdir -p "$LOG_DIR"
+touch "$LOG_FILE"
+
+fail() {
+  printf '%s\n' "$1" >&2
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Itsuki Sway Rice" "$1" >/dev/null 2>&1 || true
+  fi
+  exit 1
+}
+
+command -v swaymsg >/dev/null 2>&1 || fail "swaymsg was not found."
+command -v sway >/dev/null 2>&1 || fail "sway was not found."
+
+# Validate before reloading so syntax errors do not replace the working session config.
+if ! sway -C -c "$SWAY_CONFIG_FILE" >>"$LOG_FILE" 2>&1; then
+  fail "Sway config validation failed. See $LOG_FILE"
+fi
+if ! swaymsg reload >>"$LOG_FILE" 2>&1; then
+  fail "Sway could not reload its config. See $LOG_FILE"
+fi
+
+sleep 0.3
+if [[ -x "$START_HELPER" ]]; then
+  "$START_HELPER" >>"$LOG_FILE" 2>&1
+else
+  fail "Itsuki startup helper is missing: $START_HELPER"
+fi
+
+if command -v notify-send >/dev/null 2>&1; then
+  notify-send "Itsuki Sway Rice" "Config reloaded; Waybar, Dunst and wallpaper restarted." >>"$LOG_FILE" 2>&1 || true
+fi

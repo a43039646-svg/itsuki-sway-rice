@@ -13,6 +13,7 @@
   "modules-right": [
     "network",
     "pulseaudio",
+    "backlight",
     "battery",
     "tray"
   ],
@@ -72,5 +73,11 @@
     "format": "",
     "tooltip": "Open application launcher",
     "on-click": "fuzzel"
+  },
+  "backlight": {
+    "format": " {percent}%",
+    "tooltip": true,
+    "on-scroll-up": "brightnessctl -c backlight set +5%",
+    "on-scroll-down": "brightnessctl -c backlight set 5%-"
   }
 }

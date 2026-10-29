@@ -14,7 +14,12 @@ cfg=json.loads(Path(waybar).read_text())
 mods=sum((cfg.get(k,[]) for k in ("modules-left","modules-center","modules-right")),[])
 if len(mods)!=len(set(mods)): raise SystemExit(f"{profile}: duplicate Waybar module")
 if "sway/workspaces" not in mods: raise SystemExit(f"{profile}: missing sway/workspaces")
+if "backlight" not in mods: raise SystemExit(f"{profile}: missing backlight module")
 if cfg.get("modules-right",[]).count("tray")!=1: raise SystemExit(f"{profile}: tray must appear once")
+if cfg.get("backlight",{}).get("on-scroll-up") != "brightnessctl -c backlight set +5%":
+    raise SystemExit(f"{profile}: incorrect backlight scroll-up command")
+if cfg.get("backlight",{}).get("on-scroll-down") != "brightnessctl -c backlight set 5%-":
+    raise SystemExit(f"{profile}: incorrect backlight scroll-down command")
 if len(re.findall(r"(?m)^color(?:[0-9]|1[0-5])\s+#?[0-9a-fA-F]{6}\s*$",Path(kitty).read_text()))!=16:
     raise SystemExit(f"{profile}: expected 16 Kitty ANSI colors")
 PY
@@ -22,6 +27,8 @@ PY
 done
 bash -n "$ROOT/install.sh"
 bash -n "$ROOT/scripts/itsuki-power-menu"
+bash -n "$ROOT/scripts/itsuki-start-rice"
+bash -n "$ROOT/scripts/itsuki-reload-rice"
 bash -n "$ROOT/scripts/import-wallpapers.sh"
 for wrapper in "$ROOT"/variants/*/install.sh; do bash -n "$wrapper"; done
 python3 - "$ROOT/scripts/itsuki-slider.py" "$ROOT/scripts/itsuki-wifi-menu.py" <<'PY'
