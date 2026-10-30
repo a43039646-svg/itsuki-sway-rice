@@ -10,7 +10,7 @@ Install Sway first, then run:
     cd itsuki-sway-rice
     bash install.sh
 
-The installer first asks which distro profile to use (Neutral, Arch Linux, Debian or Gentoo), then asks whether to use a wallpaper **with Itsuki**, **without Itsuki**, or keep your existing Sway wallpaper setup. Existing Sway settings are backed up under **~/.config/itsuki-sway-backup/**. The installer removes built-in **bar { ... }** blocks and explicit Swaybar startup commands from the active Sway config. The startup helper also stops Swaybar as a fallback if a separate included config starts it, so Waybar remains the only panel. If you choose an Itsuki/clean wallpaper, a conflicting direct **swaybg** startup line is removed from the backed-up config; if you keep your own wallpaper, existing **swaybg** configuration is preserved.
+The installer first asks which distro profile to use (Neutral, Arch Linux, Debian or Gentoo), then offers two wallpaper choices: **with Itsuki** or **without Itsuki**. It next asks whether to apply that same profile and wallpaper to LightDM. Existing Sway settings are backed up under **~/.config/itsuki-sway-backup/**. The installer removes built-in **bar { ... }** blocks and explicit Swaybar startup commands from the active Sway config. The startup helper also stops Swaybar as a fallback if a separate included config starts it, so Waybar remains the only panel. For non-interactive installs, `ITSUKI_WALLPAPER_STYLE=none` or `ITSUKI_WALLPAPER=none` preserves the existing wallpaper setup.
 
 On Debian, common packages are:
 
@@ -19,7 +19,7 @@ On Debian, common packages are:
 
 Keep your current audio stack if it already works. The rice installer configures files and shortcuts but does not install packages for you.
 
-The main installer offers LightDM setup at the end only if LightDM is present. Answer **No** to leave the login screen untouched; you can configure it later with the separate installer:
+The main installer offers to apply the selected profile and wallpaper to LightDM at the end. Answer **No** to skip it and configure it later with the separate installer:
 
     bash install-lightdm.sh
 

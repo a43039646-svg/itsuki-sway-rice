@@ -127,24 +127,23 @@ elif [[ -z "$WALLPAPER_STYLE" && -n "${ITSUKI_DISTRO:-}" ]]; then
   # Existing variant wrappers continue to default to the Itsuki wallpaper.
   WALLPAPER_STYLE="character"
 elif [[ -z "$WALLPAPER_STYLE" ]]; then
-  printf '\nWallpaper choice\n'
+  printf '\nWallpaper style\n'
   printf '  1) With Itsuki\n'
   printf '  2) Without Itsuki (clean background)\n'
-  printf '  0) Keep my current wallpaper and existing swaybg setup\n\n'
+  printf '\n'
   [[ -r /dev/tty && -w /dev/tty ]] || {
-    echo "No interactive terminal; set ITSUKI_WALLPAPER_STYLE=character|clean|none." >&2
+    echo "No interactive terminal; set ITSUKI_WALLPAPER_STYLE=character|clean (or none to keep your current wallpaper)." >&2
     exit 2
   }
   while true; do
-    IFS= read -r -p "Choose [0-2]: " choice </dev/tty || {
+    IFS= read -r -p "Choose [1-2]: " choice </dev/tty || {
       echo "Wallpaper selection cancelled." >&2
       exit 2
     }
     case "$choice" in
       1) WALLPAPER_STYLE="character"; break ;;
       2) WALLPAPER_STYLE="clean"; break ;;
-      0) WALLPAPER_STYLE="none"; break ;;
-      *) echo "Choose 0, 1 or 2." ;;
+      *) echo "Choose 1 or 2." ;;
     esac
   done
 fi
@@ -423,7 +422,7 @@ echo "Log out and choose Sway at the login screen, or reboot if Sway is not list
 if [[ -d /etc/lightdm ]]; then
   if [[ -r /dev/tty && -w /dev/tty ]]; then
     printf '\nLightDM was detected.\n'
-    read -r -p "Also configure the LightDM login screen with an Itsuki theme? [y/N] " configure_lightdm </dev/tty || configure_lightdm=""
+    read -r -p "Also apply this profile and wallpaper to the LightDM login screen now? [y/N] " configure_lightdm </dev/tty || configure_lightdm=""
     case "$configure_lightdm" in
       y|Y|yes|YES)
         if [[ ! -f "$ROOT/install-lightdm.sh" ]]; then
@@ -434,11 +433,11 @@ if [[ -d /etc/lightdm ]]; then
           ITSUKI_LIGHTDM_PROFILE="$PROFILE" bash "$ROOT/install-lightdm.sh"
         fi
         ;;
-      *) echo "Skipping LightDM. You can run 'bash install-lightdm.sh' later from this repository." ;;
+      *) echo "Skipping LightDM. To configure it separately later, run: bash install-lightdm.sh" ;;
     esac
   else
     echo "No interactive terminal; skipping optional LightDM setup."
   fi
 else
-  echo "LightDM was not detected at /etc/lightdm; the separate installer remains available as install-lightdm.sh."
+  echo "LightDM was not detected at /etc/lightdm. To configure it separately later, run: bash install-lightdm.sh"
 fi
