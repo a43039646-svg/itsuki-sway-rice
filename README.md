@@ -33,6 +33,10 @@ The LightDM installer asks for a profile and wallpaper style, makes backups and 
 - **Super + Shift + B** — validate/reload the Sway config, then restart Waybar and Dunst.
 - Scroll on Waybar's brightness module — adjust brightness with **brightnessctl** on supported hardware.
 
+## Known harmless config warning
+
+After installation, some editors or config checkers may flag lines **15–17** in **~/.config/sway/itsuki.conf**. These are the `bindsym` shortcut entries for Fuzzel, Kitty and the power menu. If Sway starts normally and the shortcuts work, you can safely dismiss or ignore this warning; it does not affect the rice. Fixing the editor warning is optional and can be done by anyone who prefers a clean diagnostics panel. Do not ignore it if Sway itself refuses to load the config or `sway -C` reports a real configuration failure.
+
 Sway receives 8-pixel inner gaps, 3-pixel outer gaps and window-border colors matching the selected profile. Sway does not provide Niri's built-in background blur, so Kitty transparency may show the wallpaper without blur.
 
 ## Wallpaper controls
