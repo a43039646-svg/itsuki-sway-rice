@@ -281,9 +281,9 @@ client.unfocused #292039 #0b0d20 #9b91a7 #292039 #292039
 client.urgent #ff315f #270f20 #ffffff #ff315f #ff315f
 
 # Niri-Rice-style shortcuts.
-bindsym Mod4+d exec fuzzel
-bindsym Mod4+Return exec kitty
-bindsym Mod4+e exec "$HOME/.local/bin/itsuki-power-menu"
+bindsym Mod4+d exec --no-startup-id fuzzel
+bindsym Mod4+Return exec --no-startup-id kitty
+bindsym Mod4+e exec --no-startup-id "$HOME/.local/bin/itsuki-power-menu"
 bindsym Mod4+Shift+b exec --no-startup-id "$HOME/.local/bin/itsuki-reload-rice"
 
 # Start the panel and notifications once per Sway session.
@@ -355,10 +355,20 @@ def remove_swaybar_blocks(source):
 
 text, removed_bars = remove_swaybar_blocks(text)
 kept = []
+removed_bindings = 0
+mod_match = re.search(r"(?m)^\s*set\s+\$mod\s+(\S+)", text)
+mod_value = mod_match.group(1) if mod_match else "Mod4"
+rice_keys = {"d", "Return", "e", "Shift+b"}
 for line in text.splitlines():
     if line.lstrip().startswith("#"):
         kept.append(line)
         continue
+    binding = re.match(r"^\s*bindsym\s+(?:(?:--\S+)\s+)*(\S+)", line)
+    if binding:
+        key = binding.group(1).replace("$mod", mod_value)
+        if key in {f"{mod_value}+{suffix}" for suffix in rice_keys}:
+            removed_bindings += 1
+            continue
     match = re.match(r"^\s*exec(?:_always)?(?:\s+--no-startup-id)?\s+(.*)$", line)
     if match:
         try:
@@ -382,7 +392,7 @@ else:
     text = text.rstrip() + "\n\n" + block + "\n"
 
 config.write_text(text)
-print(f"Removed {removed_bars} built-in Swaybar block(s); Waybar is the only panel.")
+print(f"Removed {removed_bars} built-in Swaybar block(s) and {removed_bindings} conflicting Sway binding(s); Waybar is the only panel.")
 PYSWAY
 
 if [[ -n "$SHELL_RC" ]]; then
